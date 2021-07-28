@@ -6,16 +6,6 @@ This is a temporary script file.
 """
     
 
-# first_input = int(input())
-
-# input_list = first_input.split(' ')
-
-# for i in input_list:
-#     last_input = int(input())
-#     if i == last_input:
-#         print(input_list[i])
-
-
 #Calls and Philosophies Program
 
 
@@ -43,7 +33,7 @@ print('Welcome to the Catchers Guide to Calling Pitches!\n')
 print('The most important thing to remember is that FB location trumps everything else.\nKeep an eye on the batters feet, let that dictate your FB locations, otherwise safe to stay away and go in once it is set up.')
 
 at_bat_prompt = int(input('Which at-bat is this for the hitter? '))
-3
+
 
 phils_atbat_values = list(phils_by_atbat.values())
 
