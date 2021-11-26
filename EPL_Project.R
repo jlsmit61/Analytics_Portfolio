@@ -3,7 +3,7 @@ library(tidyverse)
 #If we could use multiple functions, I would create a single function to do
 #the analysis, then a second function to determine the time frame to evaluate on
 #Or make use of object classes to pull function in one call
-#eliminating about 250 - 300 lines of code that were copied and pasted
+#eliminating about 250 - 300 lines of code
 
 #Date = "12/15/2019"
 
