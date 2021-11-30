@@ -85,6 +85,8 @@ EPL_Standings <- function(Date, Season) {
                                Away_Wins$wins,
                                Away_Losses$losses,
                                Away_Draws$draws)
+
+    #Combine results totals as character string
     Record_combined <- mutate(Record, Wins = (Home_Wins$wins + Away_Wins$wins),
                                                 Losses = (Home_Losses$losses + Away_Losses$losses),
                                                 Draws = (Home_Draws$draws + Away_Draws$draws))
@@ -98,13 +100,12 @@ EPL_Standings <- function(Date, Season) {
     Record_cleaned <- transmute(Record_concat, TeamName = HomeTeam, Record = record)
     
     #Points Earned
-    Points_earned <- mutate(EPL_filtered, Home_PE = ifelse(FTR == "H",3,0),
-                            Away_PE = ifelse(FTR == "A",3,0),
-                            Draw_PE = ifelse(FTR == "D",1,0))
+    Points_earned <- mutate(Record_combined, Wins_PE = Wins * 3,
+                                             Draw_PE = Draws * 1)
     #Compute points earned
     EPL_PE<- Points_earned %>% 
       group_by(TeamName = HomeTeam) %>% 
-      summarize(points = sum(Home_PE, Away_PE, Draw_PE, na.rm = TRUE))
+      summarize(points = sum(Wins_PE, Draw_PE, na.rm = TRUE))
     
     #Add PE to Record_cleaned
     Record_cleaned_PE <- transmute(EPL_PE, TeamName, Record = Record_cleaned$Record, Points = EPL_PE$points)
@@ -231,6 +232,7 @@ EPL_Standings <- function(Date, Season) {
 }
 
 #Test
-EPL_Standings("01/01/2021", "2020/21")
-#Date = "01/01/2021"
+EPL_Standings("06/01/2021", "2020/21")
+#Date = "06/01/2021"
 #Season = "2020/21"
+
