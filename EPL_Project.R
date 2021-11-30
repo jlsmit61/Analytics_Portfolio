@@ -1,7 +1,6 @@
-library("tidyverse")
-
-
 EPL_Standings <- function(Date, Season) {
+  #load library
+  library(tidyverse)
   #set Date argument = mdy or dmy (Date)
   Date = lubridate::mdy(Date)
   EPL_season_list <- c("2018/19", "2019/20", "2020/21", "2021/22")
@@ -48,36 +47,55 @@ EPL_Standings <- function(Date, Season) {
     #Create TeamName and Record column
     EPL_record_dummies <- mutate(EPL_filtered, home_wins = ifelse(FTR == "H", 1, 0),
                                  away_wins = ifelse(FTR == "A", 1, 0),
-                                 draw = ifelse(FTR == "D", 1, 0))
+                                 home_losses = ifelse(FTR == "A", 1, 0),
+                                 away_losses = ifelse(FTR == "H", 1, 0),
+                                 home_draw = ifelse(FTR == "D", 1, 0),
+                                 away_draw = ifelse(FTR == "D", 1, 0))
     #Calculate Wins
-    Wins <- EPL_record_dummies %>% 
-      group_by(TeamName = HomeTeam) %>% 
-      summarize(wins = sum(home_wins, away_wins))
+    Home_Wins <- EPL_record_dummies %>% 
+      group_by(HomeTeam) %>% 
+      summarize(wins = sum(home_wins))
+    
+    Away_Wins <- EPL_record_dummies %>% 
+      group_by(AwayTeam) %>% 
+      summarise(wins = sum(away_wins))
     #Calculate Losses
-    Losses <- EPL_record_dummies %>% 
+    Home_Losses <- EPL_record_dummies %>% 
       group_by(TeamName = HomeTeam) %>% 
-      summarize(losses = ifelse((sum(home_wins, away_wins) - sum(draw) + 1) < 0,0,
-                                (sum(home_wins, away_wins) - sum(draw) + 1)))
+      summarize(losses = sum(home_losses))
+    Away_Losses <- EPL_record_dummies %>% 
+      group_by(TeamName = AwayTeam) %>% 
+      summarise(losses = sum(away_losses))
     #Calculate Draws
-    Draws <- EPL_record_dummies %>% 
+   Home_Draws <- EPL_record_dummies %>% 
       group_by(TeamName = HomeTeam) %>% 
-      summarize(draws = sum(draw))
+      summarize(draws = sum(home_draw))
+   Away_Draws <- EPL_record_dummies %>% 
+     group_by(TeamName = AwayTeam) %>% 
+     summarise(draws = sum(away_draw))
     
     #bring data frames together
-    Record <- mutate(Wins, combine_record_columns = cbind(Wins, Losses, Draws))
+    Record <- mutate(Home_Wins, combine_record_columns = cbind(Home_Wins, Home_Losses, Home_Draws,
+                                                               Away_Wins, Away_Losses, Away_Draws))
     
     #set data type as character for wins, losses, draws
-    Record_chr <- as.character(Wins$wins,
-                               Losses$losses,
-                               Draws$draws)
+    Record_chr <- as.character(Home_Wins$wins,
+                               Home_Losses$losses,
+                               Home_Draws$draws,
+                               Away_Wins$wins,
+                               Away_Losses$losses,
+                               Away_Draws$draws)
+    Record_combined <- mutate(Record, Wins = (Home_Wins$wins + Away_Wins$wins),
+                                                Losses = (Home_Losses$losses + Away_Losses$losses),
+                                                Draws = (Home_Draws$draws + Away_Draws$draws))
     
     #string concatenate to separate wins,losses,draws with dash -
-    Record_concat <- mutate(Record, TeamName, record = str_c(Wins$wins,"-",
-                                                             Losses$losses,"-",
-                                                             Draws$draws))
+    Record_concat <- mutate(Record_combined, record = str_c(Wins,"-",
+                                                            Losses,"-",
+                                                            Draws))
     
     #Clean to show TeamName and Record
-    Record_cleaned <- transmute(Record_concat, TeamName, Record = record)
+    Record_cleaned <- transmute(Record_concat, TeamName = HomeTeam, Record = record)
     
     #Points Earned
     Points_earned <- mutate(EPL_filtered, Home_PE = ifelse(FTR == "H",3,0),
@@ -92,18 +110,17 @@ EPL_Standings <- function(Date, Season) {
     Record_cleaned_PE <- transmute(EPL_PE, TeamName, Record = Record_cleaned$Record, Points = EPL_PE$points)
     
     #Home Record
-    Home_Ws <- EPL_record_dummies %>% 
+    Home_Ws <- Home_Wins %>% 
       group_by(TeamName = HomeTeam) %>% 
-      summarize(wins = sum(home_wins))
+      summarize(wins = sum(wins))
     
-    Home_Ls <- EPL_record_dummies %>% 
-      group_by(TeamName = HomeTeam) %>% 
-      summarize(losses = ifelse((sum(home_wins) - sum(draw) + 1) < 0,0,
-                                (sum(home_wins) - sum(draw) + 1)))
+    Home_Ls <- Home_Losses %>% 
+      group_by(TeamName) %>% 
+      summarize(losses = sum(losses))
     
-    Home_Ds <- EPL_record_dummies %>% 
-      group_by(TeamName = HomeTeam) %>% 
-      summarize(draws = sum(draw))
+    Home_Ds <- Home_Draws %>% 
+      group_by(TeamName) %>% 
+      summarize(draws = sum(draws))
     
     Record_Home <- mutate(Home_Ws, combine_record_columns = cbind(Home_Ws, Home_Ls, Home_Ds))
     
@@ -120,18 +137,17 @@ EPL_Standings <- function(Date, Season) {
     Home_Record_cleaned_PE <- transmute(EPL_PE, TeamName, Record = Record_cleaned$Record, Points = EPL_PE$points, Home_Record = Record_concat$record)
     
     #Away Record
-    Away_Ws <- EPL_record_dummies %>% 
-      group_by(TeamName = HomeTeam) %>% 
-      summarize(wins = sum(away_wins))
+    Away_Ws <- Away_Wins %>% 
+      group_by(TeamName = AwayTeam) %>% 
+      summarize(wins = sum(wins))
     
-    Away_Ls <- EPL_record_dummies %>% 
-      group_by(TeamName = HomeTeam) %>% 
-      summarize(losses = ifelse((sum(away_wins) - sum(draw) + 1) < 0,0,
-                                (sum(away_wins) - sum(draw) + 1)))
+    Away_Ls <- Away_Losses %>% 
+      group_by(TeamName) %>% 
+      summarize(losses = sum(losses))
     
-    Away_Ds <- EPL_record_dummies %>% 
-      group_by(TeamName = HomeTeam) %>% 
-      summarize(draws = sum(draw))
+    Away_Ds <- Away_Draws %>% 
+      group_by(TeamName) %>% 
+      summarize(draws = sum(draws))
     
     Record_Away <- mutate(Away_Ws, combine_record_columns = cbind(Away_Ws, Away_Ls, Away_Ds))
     
@@ -149,15 +165,18 @@ EPL_Standings <- function(Date, Season) {
                                         Points = EPL_PE$points, HomeRecord = Record_concat$record,
                                         AwayRecord = Away_Record_concat$record)
     #Matches Played
-    Matches <- EPL_record_dummies %>% 
+    Home_Matches <- EPL_record_dummies %>% 
       group_by(TeamName = HomeTeam) %>% 
-      summarize(matches = sum(home_wins, away_wins, draw) + (ifelse((sum(home_wins, away_wins) - sum(draw) + 1) < 0,0,
-                                                                    (sum(home_wins, away_wins) - sum(draw)))) + 1)
+      summarize(matches = n())
+    Away_Matches <- EPL_record_dummies %>% 
+      group_by(TeamName = AwayTeam) %>% 
+      summarise(matches = n())
+    Matches_played <- mutate(Home_Matches, Matches = Home_Matches$matches + Away_Matches$matches)
     
     #Add Matches Played to Away_Record_cleaned_PE
     Matches_Record_cleaned_PE <- transmute(EPL_PE, TeamName, Record = Record_cleaned$Record, 
                                            HomeRecord = Record_concat$record,
-                                           AwayRecord = Away_Record_concat$record, MatchesPlayed = Matches$matches,
+                                           AwayRecord = Away_Record_concat$record, MatchesPlayed = Matches_played$Matches,
                                            Points = EPL_PE$points)
     
     #Points per match (PPM)
@@ -167,13 +186,13 @@ EPL_Standings <- function(Date, Season) {
     
     PPM_cleaned <- transmute(EPL_PE, TeamName, Record = Record_cleaned$Record, 
                              HomeRecord = Record_concat$record,
-                             AwayRecord = Away_Record_concat$record, MatchesPlayed = Matches$matches,
+                             AwayRecord = Away_Record_concat$record, MatchesPlayed = Matches_played$Matches,
                              Points = EPL_PE$points,
                              PPM = Points_Per_Match$PPM)
     
     #Point Percentage = points / 3 * number of games played (PtPct)
     #use mutate instead of group by and summarize in order to avoid value aggregating down the column 
-    PtPct <- mutate(PPM_cleaned, PtPct = (EPL_PE$points / (3*Matches$matches)))
+    PtPct <- mutate(PPM_cleaned, PtPct = (EPL_PE$points / (3*Matches_played$Matches)))
     
     #Goal Scored (GS) Sum FTHG and FTAG grouped by team name
     Goal_scored_home <- EPL_date_trim %>% 
@@ -187,7 +206,7 @@ EPL_Standings <- function(Date, Season) {
     Goal_scored <- mutate(PtPct, GS = Goal_scored_home$Goals_home + Goal_scored_away$Goals_Away)
     
     #Goals Scored per match (GSM)
-    Goals_per_match <- mutate(Goal_scored, GSM = GS / Matches$matches)
+    Goals_per_match <- mutate(Goal_scored, GSM = GS / Matches_played$Matches)
     
     #Goals allowed
     #Calculate goals allowed as the home team
@@ -203,16 +222,15 @@ EPL_Standings <- function(Date, Season) {
                             GA = Goals_allowed_home$gs_allowed + Goals_allowed_away$gs_allowed_away)
     
     #Goals allowed per match (GAM)
-    Goals_allowed_pm <- mutate(Goals_allowed, GAM = Goals_allowed$GA / Matches$matches)
+    Goals_allowed_pm <- mutate(Goals_allowed, GAM = Goals_allowed$GA / Matches_played$Matches)
     
     #Arrange output 
-    Final_output <- arrange(Goals_allowed_pm, desc(Goals_allowed_pm$PPM), desc(Wins$wins), desc(Goals_allowed_pm$GSM), Goals_allowed_pm$GAM)
+    Final_output <- arrange(Goals_allowed_pm, desc(Goals_allowed_pm$PPM), desc(Record_combined$Wins), desc(Goals_allowed_pm$GSM), Goals_allowed_pm$GAM)
     
     return(Final_output)
 }
 
 #Test
-EPL_Standings("10/15/2018", "2018/19")
-
-#Date = "12/15/2020"
+EPL_Standings("01/01/2021", "2020/21")
+#Date = "01/01/2021"
 #Season = "2020/21"
