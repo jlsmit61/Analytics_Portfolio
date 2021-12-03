@@ -196,26 +196,26 @@ EPL_Standings <- function(Date, Season) {
     PtPct <- mutate(PPM_cleaned, PtPct = (EPL_PE$points / (3*Matches_played$Matches)))
     
     #Goal Scored (GS) Sum FTHG and FTAG grouped by team name
-    Goal_scored_home <- EPL_date_trim %>% 
+    Goal_scored_home <- EPL_filtered %>% 
       group_by(TeamName = HomeTeam) %>% 
       summarize(Goals_home = sum(FTHG))
     
-    Goal_scored_away <- EPL_date_trim %>% 
+    Goal_scored_away <- EPL_filtered %>% 
       group_by(TeamName = AwayTeam) %>% 
       summarize(Goals_Away = sum(FTAG))
     
-    Goal_scored <- mutate(PtPct, GS = Goal_scored_home$Goals_home + Goal_scored_away$Goals_Away)
+    Goal_scored <- mutate(PtPct, GS = (Goal_scored_home$Goals_home + Goal_scored_away$Goals_Away))
     
     #Goals Scored per match (GSM)
     Goals_per_match <- mutate(Goal_scored, GSM = GS / Matches_played$Matches)
     
     #Goals allowed
     #Calculate goals allowed as the home team
-    Goals_allowed_home <- EPL_date_trim %>% 
+    Goals_allowed_home <- EPL_filtered %>% 
       group_by(TeamName = HomeTeam) %>% 
       summarize(gs_allowed = sum(FTAG))
     #Calculate goals allowed as the away team
-    Goals_allowed_away <- EPL_date_trim %>% 
+    Goals_allowed_away <- EPL_filtered %>% 
       group_by(TeamName = AwayTeam) %>% 
       summarize(gs_allowed_away = sum(FTHG))
     #Sum the totals of goals allowed as home and away, add to data frame
@@ -232,7 +232,7 @@ EPL_Standings <- function(Date, Season) {
 }
 
 #Test
-EPL_Standings("06/01/2021", "2020/21")
-#Date = "06/01/2021"
+EPL_Standings("12/10/2020", "2020/21")
+#Date = "12/10/2020"
 #Season = "2020/21"
 
