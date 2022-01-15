@@ -16,15 +16,15 @@ In an analysis for what most strongly determines call volume for Business Proces
 * DocuSign Envelopes Voided
 * Number of Releases
 
-By assuming an alpha of .05 (95% confidence), we are able to build a model that explains **54%** of the variability in Call Volume on a week to week basis.
+Some factors, while intriguing, do not drive call volume in any significant way. Those factors were removed from the model to allow for more accurate predictions. Those factors were Missing Document report and the Missing document report W8/W9 and the number of releases on a given week. 
+
+By assuming an alpha of .05 (95% confidence), we were able to build a model that explains **54%** of the variability in Call Volume on a week to week basis. 
 
 ```{r, echo = FALSE, message=FALSE}
 library(tidyverse)
-Call_Vol <- read_csv('Call_Vol_Reg1.csv')
+Call_Vol <- read_csv('Call_Vol_Reg2.csv')
 Call_Vol$Week <- as.numeric((as.character(Call_Vol$Week)))
-model1 <- lm(Call_Volume ~ (Trend + Week + Q1_Dummy + Q2_Dummy + Q3_Dummy + Missing_Doc_Report +
-                                      Missing_W8_W9_report + Rejects + DS_Envelopes_Sent +
-                                      Envelopes_Voided + Releases), data = Call_Vol)
+model1 <- lm(Call_Volume ~ (Trend + Q1_Dummy + Q3_Dummy + Q4_Dummy + Rejects + DS_Envelopes_Sent + Envelopes_Voided), data = Call_Vol)
 summary(model1)
 ```
 We know our model is a good fit based on the p-value of our F statistic (less than .01) and the presence of at least one independent variable being significant (denoted by asterisks beside the p-value). This tells us that those variables (Trend, Rejects, and DocuSign Envelopes Sent) are significant drivers in the model for predicting call volume. 
@@ -40,16 +40,6 @@ volume
 
 > This trend plot of each week's call volume from the past two years shows what we know to be true of CI call volume. Peaks at the beginning of the year (tax season) and small increases in the summer (SSI releases : 2020 IRA & 2021 Retail) and winter(RMDs). 
 
-## Volume by Week of the Year
-```{r, echo = FALSE}
-Call_Week <- ggplot(model1, aes(Week, Call_Volume)) + 
-  geom_point() + 
-  geom_smooth(se = FALSE, method = "loess")
-
-Call_Week
-```
-
-> Analyzing the call volume by week of the year, we can see more clearly the seasonality that exists. Q1 (tax season) and Q4 (RMDs) are the peak seasons for call volume. 
 
 ## Relationship of Volume to DocuSign Envelopes Sent
 ```{r, echo = FALSE}
@@ -88,18 +78,15 @@ Rejects
 
 > The relationship between rejects and call volume is a little difficult to see graphically due to a significant increase in rejections from the roll out of SSI IRA (2020) and Retail (2021). However, if we view increasing number of rejects in two sections (less than 250 and greater than 500), there is an upward trend to each section, respectively. Rejects generate calls for the most common reasons (find my process and help with the cause of the reject.)
 
-## Relationship of Volume to Releases
-```{r, echo=FALSE}
-
-#Volume by Releases
-Releases <- ggplot(model1, aes(Releases, Call_Volume)) + 
-  geom_point() + 
-  geom_smooth(se = FALSE, method = "loess")
-
-Releases
+## Accuracy of the model
+```{r, echo = FALSE}
+#Model Accuracy
+plot(x = predict(model1), y = Call_Vol$Call_Volume,
+                 xlab = "Predicted Values",
+                 ylab = "Actual Values",
+                 main = "Predicted vs. Actual")
+abline(a=0, b=1)
 ```
- 
-> My expectation here between call volume and releases was that it would be a strong postive relationship, however we see no distinct relationship exists. Stepping back, this gives us a clear picture of individual releases that went smoothly as opposed to ones that possibly had rollbacks or other signifcant issues. 
 
 ## Moving Forward
 The data provides a clear answer to what needs to take place in order to improve the fields experience with Business Process. Improving the branches understanding of the relationship between DocuSign and the processes that map to DocuSign envelopes will significantly enhance their efficiency with the LiquidOffice/DocuSign tools. 
@@ -109,6 +96,7 @@ The data provides a clear answer to what needs to take place in order to improve
 We have a few examples to start with. 
 
 * Account Opening needs a pop up or hard stop when a branch does not provide a primary owner on an account prior to creating the packet.
-  **GOST is on top of this one**
 
-* Processes that do not map a clients required delivery info (email & phone number), like SSI, need some type of notification/pop up to the CS that they will need to provide that info under "Edit Recipents" once they arrive in DocuSign. Better yet, why not take the CS directly to "Edit Recipients" instead of landing them in the document editing stage.
+
+* Processes that do not map a clients required delivery info (email & phone number), like SSI, need some type of notification/pop up to the CS that they will need to provide that info under "Edit Recipients" once they arrive in DocuSign. Better yet, why not take the CS directly to "Edit Recipients" instead of landing them in the document editing stage.
+
