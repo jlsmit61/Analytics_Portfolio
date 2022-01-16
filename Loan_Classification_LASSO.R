@@ -6,9 +6,16 @@ library(Matrix)
 library(ROCR)
 
 loan_data <- read.csv('loan_default_dataset.csv', header = T)
+
 summaryStats <- skim(loan_data)
 summaryStats
-#Do basic boxplots etc
+
+histogram(loan_data$Credit_score~loan_data$Credit_score)
+histogram(loan_data$Age~loan_data$Age)
+
+#Count of default vs. not default (0s and 1s)
+ggplot(data = loan_data) +
+  geom_bar(mapping = aes(x=Default))
 
 #Create dummy's with model.matrix(response variable ~ . (dot means all), data = data.csv)
 loan_predictors_dummy <- model.matrix(Default~., data = loan_data)
