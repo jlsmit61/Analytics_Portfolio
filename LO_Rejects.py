@@ -20,6 +20,7 @@ from skimpy import skim
 Rejects_imp = 'Rejects_Analysis.csv'
 
 Rejects = pd.read_csv(Rejects_imp)
+skim(Rejects)
 Rejects['DocuSigned_Used'] = np.where(Rejects['DocuSign_Used'] == 'TRUE', 1, 0)
 Rejects['Reject'] = np.where(Rejects['Reject'] == 'Reject', 1, 0)
 Rejects['DocuSign_Used'] = np.where(Rejects['DocuSign_Used'] == 'TRUE', 1, 0)
@@ -37,10 +38,62 @@ Rejects['DS_Expiration_3wks'] = np.where((Rejects['DS_Expiration_3wks'] == True)
 Rejects['DS_Expiration_Month'] = np.logical_and(Rejects['DocuSign_Used'] == 1, Rejects['Over 1 Month'] == 1)
 Rejects['DS_Expiration_Month'] = np.where((Rejects['DS_Expiration_Month'] == True), 1, 0)
 
-Rejects_pid = Rejects.drop(['PROCESS_ID', 'NAME', 'Start_Date', 'End_Date', 'Start_Day', 'Start Month', 'End Day', 'End Month', 'DocuSigned_Used'], axis=1)
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'AACR Approval Subprocess'), 'AACR', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'AACR Manual Update Process'), 'AACR', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Account Documentation Submission Process'), 'ADS', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Account Retitling Process'), 'Acct Retitle', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'ACH Instructions'), 'AINS', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Advisory Goal Tool Process'), 'AGT', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Advisory Program Schedule Generation'), 'AWA', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Advisory Target Allocation Process'), 'ATAP', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Advisory Workflow Application (AWA)'), 'AWA', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Annual Advisory Client Review (AACR)'), 'AACR', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'AWA Subsession'), 'AWA', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Beneficiary Change Process'), 'Bene Change', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Blank Form Packet Creator'), 'AO', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Client Transfer Application'), 'CTA', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'CostBasis Process'), 'Cost Basis', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Create Bulk PDF of CRT Letters'), 'CRT', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'DRS_DRIP Process'), 'DRS_DRP', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'DTC (Free Delivery) Request Process'), 'DTC', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'DWAC Subprocess'), 'DWAC', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Fee Waiver Process'), 'Fee Waiver', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'FI Allocation Account Opening'), 'Fixed Income', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'FI Master Account Opening'), 'Fixed Income', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Find Existing Pre-sale Disclosure'), 'Retirement Plans', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Household Maintenance'), 'HM', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'IER Account Opening Process'), 'IER', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Insurance Submission Process'), 'Ins Submission', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'IRA Simplifiers Process'), 'AO', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'LiquidOffice ACAT Process'), 'ACAT', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Margin Option Process'), 'M/O', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Mutual Fund Networking Request Process'), 'MFNR', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Open an account'), 'AO', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Periodic Investment Purchase and Sell (PIPS)'), 'PIPS', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'PIM Composite Update Process'), 'PIM Comp Update', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Qualified Plan Account Opening'), 'Retirement Plans', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Qualified Plan Maintenance'), 'Retirement Plans', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Qualified Plan Pre-sale Disclosure Process'), 'Retirement Plans', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Review Previous Day Repurchase Trades'), 'Review Prev Day Trades', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Schedule C Update Subprocess'), 'Schedule C', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'SSI Approval Subprocess'), 'SSI', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Statement Household Maintenance'), 'HM', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Supervision Group Acceptance Process'), 'AO', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Systematic and Standing Instructions Process'), 'SSI', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Tax Gain or Loss Sub Process'), 'Tax GL', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Trade Correction Process'), 'Trade Corr', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Transfer to Client Resource Team Process'), 'TCRT', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'UTMA UGMA Exception State Registration Process'), 'UTMA Excep', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'UTMA UGMA Freeze Subprocess'), 'UTMA Retitle', Rejects['NAME'])
+Rejects['NAME'] = np.where((Rejects['NAME'] == 'Verbal Account Opening Approval Subprocess'), 'AO', Rejects['NAME'])
+
+df = Rejects['NAME'].str.get_dummies()
+Rejects = pd.concat([Rejects, df], axis=1)
+
+
+Rejects_pid = Rejects.drop(['PROCESS_ID', 'NAME', 'Start_Date', 'End_Date', 'Start_Day', 'Start_Month', 'End_Day', 'End_Month', 'DocuSigned_Used'], axis=1)
 Rejects = Rejects_pid
 
-Rejects.head()
 skim(Rejects)
 
 
@@ -51,11 +104,11 @@ from sklearn.model_selection import train_test_split
 features = Rejects.drop('Reject', axis=1)
 labels = Rejects['Reject']
 
-X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=.4, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=.2, random_state=42)
 X_val, X_test, y_val, y_test = train_test_split(X_test, y_test, test_size=.5, random_state=42)
 
-#for dataset in [y_train, y_val, y_test]:
-#    print(round(len(dataset)/ len(labels), 2))
+for dataset in [y_train, y_val, y_test]:
+    print(round(len(dataset)/ len(labels), 2))
 
 X_train.to_csv('rejects_train_features.csv', index = False)
 X_val.to_csv('val_features.csv', index = False)
@@ -86,10 +139,11 @@ def print_results(results):
     for mean, std, params in zip(means, stds, results.cv_results_['params']):
         print('{} (+/-{}) for {}'.format(round(mean, 3), round(std*2, 3), params))
 
+Rejects.head()
 
 #Logistic Regression
 #When being able to explain how variables affect model is important. 
-tr_features.head()
+
 lr = LogisticRegression()
 parameters = {
     'C': [.001, .01, .1, 1, 10, 100, 1000]
@@ -175,7 +229,7 @@ print_results(cv)
 joblib.dump(cv.best_estimator_, 'GB_model.pkl')
 
 #Neural Network Sequential
-Rejects.value_counts()
+
 from numpy.random import seed
 seed(99)
 import tensorflow
@@ -183,19 +237,19 @@ tensorflow.random.set_seed(99)
 from keras.models import Sequential
 from keras.layers import Dense
 Nnet = Sequential()
-number_inputs = 14
-number_hidden_nodes = 14
+number_inputs = 48
+number_hidden_nodes = 7
 Nnet.add(Dense(units=number_inputs, activation='sigmoid', input_dim = number_inputs))
 Nnet.add(Dense(units=3, activation='relu'))
 Nnet.add(Dense(units=2, activation='tanh'))
 Nnet.add(Dense(units=1, activation='sigmoid'))
 Nnet.summary()
-
+Rejects.shape
 Nnet.compile(optimizer='adam',
             loss='binary_crossentropy',
             metrics=['accuracy'])
 
-Nnet.fit(tr_features, tr_labels, epochs=1500, shuffle=True, verbose=2)
+Nnet.fit(tr_features, tr_labels, epochs=1000, shuffle=True, verbose=2)
 
 #Evaluate Models
 
